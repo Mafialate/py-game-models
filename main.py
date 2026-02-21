@@ -9,43 +9,45 @@ def main() -> None:
     with open("players.json") as file:
         players = json.load(file)
 
-    for player in players:
-        player_race = players[player].get("race")
+    for nickname, data in players.items():
+        player_race = data.get("race")
 
         if player_race:
             race, created = Race.objects.get_or_create(
-                name=player_race["name"],
+                name=player_race.get("name"),
                 defaults={
-                    "description": player_race["description"]
+                    "description": player_race.get("description")
                 }
             )
 
-            for skill in player_race["skills"]:
-                Skill.objects.update_or_create(
-                    name=skill["name"],
+            for skill in player_race.get("skills"):
+                Skill.objects. get_or_create(
+                    name=skill.get("name"),
                     defaults={
-                        "bonus": skill["bonus"],
+                        "bonus": skill.get("bonus"),
                         "race": race
                     }
                 )
-            guild_data = players[player].get("guild")
+            guild_data = data.get("guild")
 
             if guild_data:
                 guild, created = Guild.objects.get_or_create(
-                    name=guild_data["name"],
+                    name=guild_data.get("name"),
                     defaults={
-                        "description": guild_data["description"]
+                        "description": guild_data.get("description")
                     }
                 )
             else:
                 guild = None
 
             Player.objects.get_or_create(
-                nickname=player,
-                email=players[player]["email"],
-                bio=players[player]["bio"],
-                race=race,
-                guild=guild
+                nickname=nickname,
+                defaults={
+                    "email": data.get("email"),
+                    "bio": data.get("bio"),
+                    "race": race,
+                    "guild": guild
+                }
             )
 
 
